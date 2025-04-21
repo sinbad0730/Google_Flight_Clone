@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useDebounce } from "@/hooks/use-debounce"
+import { useToast } from "@/components/ui/use-toast"
 
 interface AirportSearchProps {
   placeholder: string
@@ -28,6 +29,7 @@ export default function AirportSearch({ placeholder, onSelect, value }: AirportS
   const [loading, setLoading] = useState(false)
   const debouncedSearch = useDebounce(inputValue, 300)
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null)
+  const { toast } = useToast()
 
   useEffect(() => {
     if (debouncedSearch.length < 2) {
@@ -74,6 +76,22 @@ export default function AirportSearch({ placeholder, onSelect, value }: AirportS
     }
   }, [value, selectedAirport])
 
+  const handleSelect = async (airport: Airport) => {
+    const confirmed = window.confirm(`Are you sure you want to select ${airport.city} (${airport.code})?`)
+    
+    if (confirmed) {
+      setSelectedAirport(airport)
+      onSelect(airport.code)
+      setOpen(false)
+      
+      toast({
+        title: "Airport Selected",
+        description: `Successfully selected ${airport.city} (${airport.code})`,
+        duration: 3000,
+      })
+    }
+  }
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -109,11 +127,7 @@ export default function AirportSearch({ placeholder, onSelect, value }: AirportS
                     <CommandItem
                       key={airport.code}
                       value={airport.code}
-                      onSelect={(currentValue) => {
-                        setSelectedAirport(airport)
-                        onSelect(airport.code)
-                        setOpen(false)
-                      }}
+                      onSelect={() => handleSelect(airport)}
                     >
                       <Check className={cn("mr-2 h-4 w-4", value === airport.code ? "opacity-100" : "opacity-0")} />
                       {airport.city} ({airport.code}) - {airport.name}, {airport.country}
