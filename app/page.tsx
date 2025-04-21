@@ -1,4 +1,5 @@
-import Image from "next/image";
+import FlightSearch from "@/components/flight-search"
+import { Toaster } from "@/components/ui/toaster"
 
 export default function Home() {
   return (
@@ -25,9 +26,9 @@ export default function Home() {
             </div>
           </div>
         </header>
-        
+        <FlightSearch />
       </div>
-      
+      <Toaster />
     </main>
-  );
+  )
 }
