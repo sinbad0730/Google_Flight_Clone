@@ -77,8 +77,8 @@ export default function AirportSearch({ placeholder, onSelect, value }: AirportS
   }, [value, selectedAirport])
 
   const handleSelect = async (airport: Airport) => {
-    const confirmed = window.confirm(`Are you sure you want to select ${airport.city} (${airport.code})?`)
-    
+    // const confirmed = window.confirm(`Are you sure you want to select ${airport.city} (${airport.code})?`)
+    const confirmed = true
     if (confirmed) {
       setSelectedAirport(airport)
       onSelect(airport.code)

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { useToast } from "@/components/ui/use-toast"
 
 interface Flight {
   id: string
@@ -44,6 +45,7 @@ interface FlightResultsProps {
 export default function FlightResults({ results }: FlightResultsProps) {
   const [sortBy, setSortBy] = useState("price")
   const [filterStops, setFilterStops] = useState("all")
+  const { toast } = useToast()
 
   const sortFlights = (flights: Flight[]) => {
     return [...flights].sort((a, b) => {
@@ -63,6 +65,16 @@ export default function FlightResults({ results }: FlightResultsProps) {
 
   const processedOutbound = filterFlights(sortFlights(results.outbound))
   const processedInbound = results.inbound ? filterFlights(sortFlights(results.inbound)) : undefined
+
+  const handleSelect = (flight: Flight) => {
+    const confirmed = window.confirm(
+      `Would you like to select this ${flight.airline.name} flight for ${flight.currency} ${flight.price}?`
+    )
+
+    if (confirmed) {
+      window.alert(`Successfully selected ${flight.airline.name} flight ${flight.id}!`)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -106,14 +118,18 @@ export default function FlightResults({ results }: FlightResultsProps) {
           </TabsList>
           <TabsContent value="outbound" className="space-y-4 mt-4">
             {processedOutbound.length > 0 ? (
-              processedOutbound.map((flight) => <FlightCard key={flight.id} flight={flight} />)
+              processedOutbound.map((flight) => (
+                <FlightCard key={flight.id} flight={flight} onSelect={handleSelect} />
+              ))
             ) : (
               <p className="text-center py-8">No flights match your filters.</p>
             )}
           </TabsContent>
           <TabsContent value="inbound" className="space-y-4 mt-4">
             {processedInbound && processedInbound.length > 0 ? (
-              processedInbound.map((flight) => <FlightCard key={flight.id} flight={flight} />)
+              processedInbound.map((flight) => (
+                <FlightCard key={flight.id} flight={flight} onSelect={handleSelect} />
+              ))
             ) : (
               <p className="text-center py-8">No flights match your filters.</p>
             )}
@@ -122,7 +138,9 @@ export default function FlightResults({ results }: FlightResultsProps) {
       ) : (
         <div className="space-y-4">
           {processedOutbound.length > 0 ? (
-            processedOutbound.map((flight) => <FlightCard key={flight.id} flight={flight} />)
+            processedOutbound.map((flight) => (
+              <FlightCard key={flight.id} flight={flight} onSelect={handleSelect} />
+            ))
           ) : (
             <p className="text-center py-8">No flights match your filters.</p>
           )}
@@ -132,7 +150,7 @@ export default function FlightResults({ results }: FlightResultsProps) {
   )
 }
 
-function FlightCard({ flight }: { flight: Flight }) {
+function FlightCard({ flight, onSelect }: { flight: Flight; onSelect: (flight: Flight) => void }) {
   return (
     <Card>
       <CardContent className="p-6">
@@ -205,7 +223,9 @@ function FlightCard({ flight }: { flight: Flight }) {
             <p className="text-2xl font-bold text-primary">
               {flight.currency} {flight.price.toLocaleString()}
             </p>
-            <Button className="mt-2 w-full">Select</Button>
+            <Button className="mt-2 w-full" onClick={() => onSelect(flight)}>
+              Select
+            </Button>
           </div>
         </div>
       </CardContent>

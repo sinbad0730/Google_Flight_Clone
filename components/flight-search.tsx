@@ -56,6 +56,12 @@ export default function FlightSearch() {
   const tripType = form.watch("tripType")
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    // const confirmed = window.confirm(
+    //   `Are you sure you want to search for flights from ${values.origin} to ${values.destination}?`
+    // )
+
+    // if (!confirmed) return
+
     setIsLoading(true)
     setFlightResults(null)
 
@@ -78,6 +84,12 @@ export default function FlightSearch() {
 
       const data = await response.json()
       setFlightResults(data)
+
+      toast({
+        title: "Search Complete",
+        description: "Found matching flights for your search criteria",
+        duration: 3000,
+      })
     } catch (error) {
       console.error("Error fetching flight data:", error)
       toast({
